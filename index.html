@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#6558c9">
+<title>みんなの個性発見！タイプ診断</title>
+<style>
+:root{--ink:#25243a;--muted:#6d6b80;--purple:#6558c9;--line:#e8e6f1;--bg:#f7f6fc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;line-height:1.6}
+main{max-width:760px;margin:0 auto;padding:24px 16px 48px}.hero{background:linear-gradient(135deg,#6558c9,#9288e7);color:white;padding:28px 24px;border-radius:22px;margin-bottom:18px}
+.hero small{opacity:.9;font-weight:700;letter-spacing:.08em}.hero h1{font-size:clamp(25px,5vw,36px);line-height:1.3;margin:8px 0}.hero p{margin:0;opacity:.95}
+.card{background:white;border:1px solid var(--line);border-radius:18px;padding:22px;margin:14px 0;box-shadow:0 5px 20px #312b6410}
+h2{font-size:20px;margin:0 0 12px}.muted{color:var(--muted);font-size:14px}.progress{height:8px;background:#eeedf5;border-radius:9px;overflow:hidden;margin:14px 0 20px}.bar{height:100%;width:0;background:var(--purple);transition:.2s}
+.qtitle{font-weight:750;font-size:18px;margin-bottom:14px}.choice{display:flex;gap:11px;align-items:flex-start;border:1.5px solid var(--line);padding:13px 14px;border-radius:13px;margin:9px 0;cursor:pointer;transition:.15s}.choice:hover{border-color:#aaa2eb;background:#faf9ff}.choice:has(input:checked){border-color:var(--purple);background:#f2f0ff}.choice input{margin-top:5px;accent-color:var(--purple);transform:scale(1.15)}
+button{border:0;border-radius:12px;padding:13px 19px;font-size:16px;font-weight:700;cursor:pointer;background:var(--purple);color:white}button:disabled{opacity:.4;cursor:not-allowed}.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.secondary{background:#efedf8;color:#4d477e}.hidden{display:none!important}
+.result{text-align:center;padding:26px 20px}.emoji{font-size:52px}.type{font-size:32px;font-weight:850;margin:4px 0}.tag{display:inline-block;padding:5px 12px;border-radius:99px;background:#f0eff8;color:#554c9a;font-size:13px;font-weight:700}.result p{max-width:520px;margin:12px auto;color:#55536a}.result h3{text-align:left;margin:24px 0 8px}.result ul{text-align:left;padding-left:22px}.note{font-size:12px;color:#77758a;background:#f7f6fb;padding:12px;border-radius:10px;text-align:left}
+.typegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.typebox{padding:14px;border-radius:13px;background:#f7f6fc}.typebox b{display:block;font-size:17px}.typebox span{font-size:13px;color:#5f5c70}
+.admin{border:1px dashed #b9b4d8}.admin input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:15px;margin:8px 0}.qrwrap{text-align:center;margin-top:15px}.qrwrap img{width:210px;height:210px;max-width:100%;border:8px solid white;box-shadow:0 2px 14px #0001}.smallbtn{font-size:13px;padding:9px 12px}
+footer{text-align:center;color:#858297;font-size:12px;margin-top:24px}
+@media(max-width:520px){main{padding:14px 12px 36px}.hero{padding:23px 18px}.card{padding:18px}.typegrid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <small>SELF DISCOVERY / TEAMWORK</small>
+    <h1>みんなの個性発見！<br>タイプ診断</h1>
+    <p>自分の得意なことを知って、みんなの個性を文化祭で生かそう！</p>
+  </header>
+
+  <section id="intro" class="card">
+    <h2>診断をはじめよう</h2>
+    <p>これから3つの質問に答えます。正解・不正解はありません。普段の自分に近いものを、直感で選んでください。</p>
+    <div class="typegrid">
+      <div class="typebox"><b>🚀 行動派</b><span>自分から動き、周囲を引っ張る</span></div>
+      <div class="typebox"><b>🤝 協調派</b><span>人の意見を聞き、支える</span></div>
+      <div class="typebox"><b>📋 計画派</b><span>整理して、順序立てて進める</span></div>
+      <div class="typebox"><b>💡 発想派</b><span>新しいアイデアや工夫を考える</span></div>
+    </div>
+    <div class="btnrow"><button id="start">診断スタート</button></div>
+  </section>
+
+  <section id="quiz" class="card hidden">
+    <div class="muted" id="counter">質問 1 / 3</div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="qtitle" id="question"></div>
+    <div id="choices"></div>
+    <div class="btnrow">
+      <button id="back" class="secondary">戻る</button>
+      <button id="next" disabled>次へ</button>
+    </div>
+  </section>
+
+  <section id="result" class="card hidden result">
+    <div class="emoji" id="resultEmoji"></div>
+    <div class="tag">あなたの診断タイプ</div>
+    <div class="type" id="resultType"></div>
+    <p id="resultLead"></p>
+    <h3>こんな良さがありそう</h3>
+    <ul id="strengths"></ul>
+    <h3>文化祭では、こんな役割も！</h3>
+    <p id="festival"></p>
+    <div class="note">※これは簡易的な診断です。性格や能力を決めつけるものではありません。どのタイプにも良さがあり、同じ人でも場面によって行動は変わります。</div>
+    <div class="btnrow" style="justify-content:center">
+      <button id="again" class="secondary">もう一度診断する</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4つのタイプの特徴</h2>
+    <div class="typegrid">
+      <div class="typebox"><b>🚀 行動派</b><span>声をかける・率先して動く・決断する</span></div>
+      <div class="typebox"><b>🤝 協調派</b><span>相手の話を聞く・支える・協力する</span></div>
+      <div class="typebox"><b>📋 計画派</b><span>予定を立てる・整理する・確認する</span></div>
+      <div class="typebox"><b>💡 発想派</b><span>案を出す・工夫する・新しい視点を出す</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>グループワーク：文化祭の仕事を分担しよう！</h2>
+    <p>あなたのグループは文化祭で模擬店を出します。次の仕事には、どのタイプの人の良さが生かせそうですか？複数のタイプを選んでもOKです。</p>
+    <ol>
+      <li><b>企画・アイデア：</b>お店のテーマやメニューを考える</li>
+      <li><b>装飾・制作：</b>看板や店内の飾りを作る</li>
+      <li><b>計画・管理：</b>予算、スケジュール、材料を整理する</li>
+      <li><b>まとめ・運営：</b>メンバーに声をかけ、準備を進める</li>
+      <li><b>接客・案内：</b>来場者に声をかけ、質問に対応する</li>
+    </ol>
+    <p class="muted">話し合いのポイント：①どのタイプの良さが生かせる？ ②なぜそう思う？ ③違うタイプ同士で協力すると、どんな良さがある？</p>
+  </section>
+
+  <section class="card admin">
+    <h2>先生向け：QRコードを表示する</h2>
+    <p class="muted">このページをインターネット上に公開したあと、そのページのURLを入力すると、生徒が読み取るQRコードを作れます。</p>
+    <label for="pageurl"><b>公開した診断ページのURL</b></label>
+    <input id="pageurl" type="url" placeholder="https://example.com/personality-check/">
+    <button id="makeqr" class="smallbtn">QRコードを作成</button>
+    <div id="qr" class="qrwrap hidden"></div>
+    <p class="muted">※QRコードの作成にはインターネット接続が必要です。まだ公開していない場合は、公開後のURLを入力してください。</p>
+  </section>
+  <footer>自分の個性を知り、違いを認め合い、みんなの良さを生かそう。</footer>
+</main>
+<script>
+const questions=[
+ {q:"Q1. グループ活動で最初にすることは？",a:[
+  ["A","自分から意見を出し、みんなに声をかける","action"],
+  ["B","まずはみんなの意見や希望を聞く","team"],
+  ["C","何をするか、進め方や手順を整理する","plan"],
+  ["D","面白そうな案や新しい方法を考える","idea"]]},
+ {q:"Q2. グループで意見が分かれたとき、あなたは？",a:[
+  ["A","自分の考えを伝えて、話し合いを前に進める","action"],
+  ["B","それぞれの意見を聞き、納得できる点を探す","team"],
+  ["C","意見の違いを整理し、比べて考える","plan"],
+  ["D","今までにない別の案を提案する","idea"]]},
+ {q:"Q3. 自分が比較的得意だと思うことは？",a:[
+  ["A","率先して行動し、周囲を引っ張ること","action"],
+  ["B","人をサポートし、協力して進めること","team"],
+  ["C","計画を立て、物事を整理すること","plan"],
+  ["D","工夫して新しいものを考えること","idea"]]}
+];
+const types={
+ action:{name:"行動派",emoji:"🚀",lead:"自分から動き、周囲に声をかけて物事を進めることが得意なタイプ。",strengths:["率先して行動できる","周囲に声をかけられる","迷ったときに一歩踏み出せる"],festival:"準備の進行役、メンバーへの声かけ、当日の呼び込みなど。"},
+ team:{name:"協調派",emoji:"🤝",lead:"周囲の意見を聞き、相手の立場を考えながら協力することが得意なタイプ。",strengths:["相手の話をよく聞ける","周囲をサポートできる","みんなが参加しやすい雰囲気を作れる"],festival:"接客、メンバーのサポート、装飾や制作の共同作業など。"},
+ plan:{name:"計画派",emoji:"📋",lead:"情報を整理し、順序や見通しを立てて進めることが得意なタイプ。",strengths:["計画を立てられる","必要なことを整理できる","確認や準備を丁寧に進められる"],festival:"予算・材料の管理、スケジュール作成、作業の進み具合の確認など。"},
+ idea:{name:"発想派",emoji:"💡",lead:"自由な視点で新しいアイデアを考え、工夫することが得意なタイプ。",strengths:["新しい案を思いつける","見せ方や方法を工夫できる","別の視点から考えられる"],festival:"お店のテーマやメニューの企画、看板・装飾のアイデア出しなど。"}
+};
+let index=0,answers=[];
+const $=id=>document.getElementById(id);
+function showQuestion(){
+ const q=questions[index];$("counter").textContent=`質問 ${index+1} / ${questions.length}`;$("bar").style.width=`${(index+1)/questions.length*100}%`;$("question").textContent=q.q;
+ $("choices").innerHTML="";
+ q.a.forEach(([letter,label,key])=>{const l=document.createElement("label");l.className="choice";l.innerHTML=`<input type="radio" name="answer" value="${key}" ${answers[index]===key?"checked":""}><span><b>${letter}：</b>${label}</span>`;l.querySelector("input").addEventListener("change",()=>{answers[index]=key;$("next").disabled=false});$("choices").appendChild(l)});
+ $("back").disabled=index===0;$("next").textContent=index===questions.length-1?"結果を見る":"次へ";$("next").disabled=!answers[index];
+}
+$("start").onclick=()=>{$("intro").classList.add("hidden");$("quiz").classList.remove("hidden");index=0;answers=[];showQuestion()};
+$("back").onclick=()=>{if(index>0){index--;showQuestion()}};
+$("next").onclick=()=>{if(!answers[index])return;if(index<questions.length-1){index++;showQuestion()}else showResult()};
+function showResult(){
+ const counts={action:0,team:0,plan:0,idea:0};answers.forEach(a=>counts[a]++);
+ const max=Math.max(...Object.values(counts));const winners=Object.keys(counts).filter(k=>counts[k]===max);
+ const multi=winners.length>1;const t=types[winners[0]];
+ $("quiz").classList.add("hidden");$("result").classList.remove("hidden");
+ $("resultEmoji").textContent=multi?"✨":t.emoji;
+ $("resultType").textContent=multi?winners.map(k=>types[k].name).join(" × "):t.name;
+ $("resultLead").textContent=multi?"複数のタイプの特徴が同じくらい表れています。場面に応じて、いろいろな良さを発揮できそうです。":t.lead;
+ $("strengths").innerHTML=(multi?winners.flatMap(k=>types[k].strengths.slice(0,2)):t.strengths).map(x=>`<li>${x}</li>`).join("");
+ $("festival").textContent=multi?winners.map(k=>types[k].festival).join(" "):t.festival;
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+$("again").onclick=()=>{$("result").classList.add("hidden");$("intro").classList.remove("hidden");answers=[];window.scrollTo({top:0,behavior:"smooth"})};
+$("makeqr").onclick=()=>{
+ const url=$("pageurl").value.trim();const out=$("qr");
+ try{const u=new URL(url);if(!["http:","https:"].includes(u.protocol))throw new Error();out.innerHTML=`<img alt="診断ページのQRコード" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(u.href)}"><p><b>このQRコードをスライドに貼り付けてください。</b></p><a href="${u.href}" target="_blank" rel="noopener">公開ページを開く</a>`;out.classList.remove("hidden")}
+ catch(e){out.innerHTML="<p style='color:#b42318'>https:// から始まる正しい公開URLを入力してください。</p>";out.classList.remove("hidden")}
+};
+</script>
+</body>
+</html>
